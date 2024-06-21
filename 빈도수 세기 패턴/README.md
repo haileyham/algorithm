@@ -111,3 +111,10 @@ validAnagram('texttwisttime', 'timetwisttext') // true
 Time Complexity - O(n)
 
 ## 설명
+1. 각 문자 길이 확인
+2. 첫번째 문자 for 반복 돌리면서 letter에 문자 차례로 넣어줌
+3. lookup 배열에 letter key 있으면 +1 해주고, 아니면 1
+4. 다음 두번째 문자 for문 반복 letter에 문자 차례로 넣기
+5. lookup에 두번째문자의 letter이 없으면 false
+6. 있으면 1빼기
+7. 입력값 validAnagram('anagrams', 'nagaramm')의 경우 s가 1개 남기 때문에 false임(5번에서 false 됨)
