@@ -102,17 +102,88 @@ arr;
 <br/>
 
 ## 피봇 helper 함수 구현
+pivot.js
+```
+// First Version
+function pivot(arr, start=0, end=arr.length+1){
+  function swap(array, i, j) {
+    var temp = array[i];
+    array[i] = array[j];
+    array[j] = temp;
+  }
 
+  var pivot = arr[start];
+  var swapIdx = start;
+
+  for(var i = start + 1; i < arr.length; i++){
+    if(pivot > arr[i]){
+      swapIdx++;
+      swap(arr,swapIdx,i);
+    }
+  }
+  swap(arr,start,swapIdx);
+  return swapIdx;
+}
+
+// Version with ES2015 Syntax
+function pivot(arr, start = 0, end = arr.length - 1) {
+  const swap = (arr, idx1, idx2) => {
+    [arr[idx1], arr[idx2]] = [arr[idx2], arr[idx1]];
+  };
+
+  // We are assuming the pivot is always the first element
+  let pivot = arr[start];
+  let swapIdx = start;
+
+  for (let i = start + 1; i <= end; i++) {
+    if (pivot > arr[i]) {
+      swapIdx++;
+      swap(arr, swapIdx, i);
+    }
+  }
+
+  // Swap the pivot from the start the swapPoint
+  swap(arr, start, swapIdx);
+  return swapIdx;
+}
+
+pivot([4,8,2,1,5,7,6,3])
 ```
 
+- pivot 에 start index 값 넣고 즉 위에서는 4임
+- swapIdx에는 start 0 값
+- for(var i = start + 1; i < arr.length; i++)는 i는 0이 아닌 start+1값이고, length 길이만큼
+- 즉 4와 4를 비교한 다음 8로 넘어가는게 아니라 그냥 4로 지정한 뒤 바로 8로 넘어가면서 루프 시작
+- if(pivot > arr[i]) 피벗(4)와 arr[i] 즉 4와 8를 비교하여 더 클 경우 옮기는데, 이 경우는 그대로임. 반복문 한번 끝나고 다시 돌음
+- i++해서 피벗(4)와 arr[i] 즉 4와 2를 비교
+- 2가 더 작기 때문에 if문 작동하고 swapIdx++ 해서 1됨
+- 그리고 바꿔주면 되는데 swap 함수에 넣어서 위치 바꿔주기. 2가 현재 index 2에 위치하고 있는데,  swapIdx는 1이고 i는 2이기 때문에 둘의 위치를 변경해줌
+- [4,8,2,1 ...] 에서 [4,2,8,1 ...]로 됨
+- 계속해서 반복하여 [4,2,1,3...] 이렇게 위치하게 되고, 반복문 종료됨
+- 그 다음 swap함수 한번더 동작하여서 arr의 start위치와 swapIdx 위치로 변경해줌
+- 즉 4보다 작은 값이 3개 있기 때문에 swapIdx는 3이 되었고, start는 0이니 두개 위치를 바꾸면 [3,2,1,4...]로 변경
+- 아래는 자세한 과정
+- 요점은 마지막에 swapIdx를 반환하는 것임
+- 실행하면 3을 반환함
 ```
-
+pivot([4,8,2,1,5,7,6,3])
+[4,8,2,1,5,7,6,3] // 4와 8
+[4,2,8,1,5,7,6,3] // 4와 2 , 2와 8 위치 변경(swapIdx=1, i=2)
+[4,2,1,8,5,7,6,3] // 4와 1 , 1과 8 위치 변경(swapIdx=2, i=3)
+[4,2,1,8,5,7,6,3] // 4와 5 , 변경 없음 (i=4)
+[4,2,1,8,5,7,6,3] // 4와 7 , 변경 없음 (i=5)
+[4,2,1,8,5,7,6,3] // 4와 6 , 변경 없음 (i=6)
+[4,2,1,3,5,7,6,8] // 4와 3 , 3과 8 위치 변경(swapIdx=3, i=7)
+[3,2,1,4,5,7,6,8] // swapIdx랑 start 변경, 3과 4 위치 변경(swapIdx=3, start=0)
+```
 
 
 <br/>
 <br/>
 
 # 🐣   퀵 정렬 구현 <span id="3">
+
+quicksort.js
 
 <br/>
 <br/>
