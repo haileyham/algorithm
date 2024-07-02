@@ -182,10 +182,117 @@ pivot([4,8,2,1,5,7,6,3])
 <br/>
 
 # 🐣   퀵 정렬 구현 <span id="3">
+## 설명
+- 앞에서 살펴 본 것처럼 처음 4라는 피벗을 찾아 인덱스를 옮기는 과정까지 하고 나면
+- 다음에 할 것은 퀵 정렬을 호출 하는 것
+- 예를들어 [4,6,9,1,2,5,3]일 경우
+- [3,2,1,4,5,7,6,8]로 4가 이동하고 나면 [3,2,1] 즉 피벗인 4를 제외 한 앞에 것을 퀵 정렬
+- 대략적인 로직은, 업데이트된 피벗 인덱스를 헬퍼가 반환하면 피벗 헬퍼를 재귀적으로 왼쪽과 오른쪽에 호출
+- 중요한 것은 새로운 배열을 만들지 않고 제자리에서 발생(같은 배열에서 발생)
+- 베이스 케이스는 단순히 배열의 아이템 길이나 배열에 하나의 항목이 있는지 확인하는 것이 아니라 하위배열에 항목 하나가 있도록 확인하는 것 [3,2,1], [2,1], [1]
+- 이는 하위배열에 2개 미만의 요소가 있을 때 수행
 
+
+## 구현
 quicksort.js
+```
+function quickSort(arr, left = 0, right = arr.length - 1) {
+  if (left < right) {
+    let pivotIndex = pivot(arr, left, right) //3
+    //left
+    quickSort(arr, left, pivotIndex - 1);
+    //right
+    quickSort(arr, pivotIndex + 1, right);
+  }
+  return arr;
+}
+
+quickSort([100, -3, 2, 4, 6, 9, 1, 2, 5, 3, 23])
+```
+
+아래는 전체 코드
+<br/>
+
+```
+
+function pivot(arr, start = 0, end = arr.length - 1) {
+  const swap = (arr, idx1, idx2) => {
+    [arr[idx1], arr[idx2]] = [arr[idx2], arr[idx1]];
+  };
+
+  // We are assuming the pivot is always the first element
+  let pivot = arr[start];
+  let swapIdx = start;
+
+  for (let i = start + 1; i <= end; i++) {
+    if (pivot > arr[i]) {
+      swapIdx++;
+      swap(arr, swapIdx, i);
+    }
+  }
+
+  // Swap the pivot from the start the swapPoint
+  swap(arr, start, swapIdx);
+  return swapIdx;
+}
+
+
+function quickSort(arr, left = 0, right = arr.length - 1) {
+  if (left < right) {
+    let pivotIndex = pivot(arr, left, right) //3
+    //left
+    quickSort(arr, left, pivotIndex - 1);
+    //right
+    quickSort(arr, pivotIndex + 1, right);
+  }
+  return arr;
+}
+
+quickSort([100, -3, 2, 4, 6, 9, 1, 2, 5, 3, 23])
+
+
+
+
+// [4,6,9,1,2,5,3]
+// [3,2,1,4,6,9,5]
+//        4
+//  3,2,1    6,9,5
+//      3      6
+//  2,1      5  9
+//    2
+//  1
+```
+- 피벗이 배열, 시작, 끝을 받지만 중요한 것은 가장 처음할 때 전체 배열을 호출한 다음, 재귀 함수가 하위 배열을 다시 시작하기 때문에, 이 하위 배열은 시작 포인트, 끝 포인트가 다름
+- 배열의 끝에 도달할 때까지 기본값이 0인 것이 아님
+- let pivotIndex = pivot(arr, left, right) 한다는 것은 arr배열 보내고 left에 0 즉 start값 0, end값 arr.lenght가 right값
+- 처음에 피벗함수가 3을 반환함 let pivotIndex = pivot(arr, left, right) //3
+- 그 다음 같은 작업을 왼쪽편에서 반복. 시작점에서 left에서 시작
+- quickSort(arr, left, pivotIndex - 1); 할 경우 왼쪽
+- 피벗 반환값 3보다 1작은 2를 right(=end)값으로 보냄. 피벗 인덱스 2 / [2,1] 일때는 피벗 인덱스 1
+- 왼쪽 호출 2번 반복
+- quickSort(arr, pivotIndex + 1, right); 오른쪽
+- 피벗 값보다 1 큰 값을 left(=start) 값으로 보냄
+- 처음 피벗 인덱스 4(=피벗값6) 6보다 작은거 앞으로
+- 모든 부분 배열 정리되면 최종배열
+- [1,2,3,4,5,6,9] 나옴
 
 <br/>
 <br/>
 
 # 🐣   퀵 정렬 : 빅오 복잡도 <span id="4">
+(퀵정렬 빅오 사진)
+[시간 복잡도]
+- 64개 요소가 있다면 6번 분해 o(log n)
+- 각 분해단계마다 피벗 정할 때 O(n)번 비교 수행 필요
+- O(n log n)
+
+[최악의 상황]
+- O(n^2)
+- 이미 정렬되어 있는 배열. 정렬되어 있는 줄 모름
+- 분해할 때마다 1개 남음. 전체 하위 배열 남음
+- 이미 정렬되어 있기 때문에 첫번째 항목만 남음
+- 각 수행 되니 O(n) 분해
+- 각 분해할 때마다 O(n) 비교 수행, 최악 케이스로 O(n^2) 시간 초래
+- 기본적으로 피벗 고를 때 매번 가장 작은 요소만 선택하거나 항상 가장 큰 요소만 선택할 때 문제 발생
+- 정렬되어 있는 예시의 경우 첫 번째 배열이 아닌 무작위로 피벗 고르면 됨
+- 반복적으로 최솟값이나 최댓값을 피벗으로 정하면 제곱 시간 됨
