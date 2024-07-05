@@ -297,63 +297,315 @@ list.push("Hermione")
 <br/>
 
 # 🐣  이중 연결 리스트 : get <span id="6">
-##  소개
+##  소개 
+- 단일 연결 리스트와 다른 점은 prev를 사용할 수 있다는 점
+- 앞 혹은 뒤에서부터 작업 시작 가능
+- 예를들어 length가 10일 때, 가장 큰 index는 9
+- index 7 을 찾고 있다면 list.get(7)한다면, 앞에서부터 찾는 것이 아니라 뒤에서부터 찾아올 수 있음(index 9에서부터 차례로)
 
 <br/>
 
 ### 어떻게?
+- 먼저 index 유효한지 확인해야해서 음수 or length와 같으면 null 출력(length가 10이면 index 9까지만 있기 때문에 index 10은 찾을 수 없음)
+- index가 length의 1/2보다 큰지 작은지 여부 확인
+- 작으면 처음부터 찾고, 크면 뒤에서부터 찾음
+- [절반보다 작으면] count는 0에서 점점 올라가고, current는 head에서 시작해서 next로 점점 넘어감.
+- [절반보다 크면] count는 length - 1에서 시작해서 점점 감소하고, current는 tail에서 시작해서 prev로 넘어옴.
 
 <br/>
 
 ##  해결법
+```
+class Node{
+    constructor(val){
+        this.val = val;
+        this.next = null;
+        this.prev = null;
+    }
+}
 
+
+class DoublyLinkedList {
+    constructor(){
+        this.head = null;
+        this.tail = null;
+        this.length = 0;
+    }
+
+// (생략 push, pop, shift, unshift)
+
+    get(index){
+        if(index < 0 || index >= this.length) return null;
+        var count, current;
+        if(index <= this.length/2){
+            count = 0;
+            current = this.head;
+            while(count !== index){
+                current = current.next;
+                count++;
+            }
+        } else {
+            count = this.length - 1;
+            current = this.tail;
+            while(count !== index){
+                current = current.prev;
+                count--;
+            }
+        }
+        return current;
+    }
+}
+
+var list = new DoublyLinkedList()
+list.push("Harry")
+list.push("Ron")
+list.push("Hermione")
+
+```
+
+- 먼저 index 유효한지 확인해야해서 음수 or length와 같으면 null 출력(length가 10이면 index 9까지만 있기 때문에 index 10은 찾을 수 없음)
+- index가 length의 1/2보다 큰지 작은지 여부 확인
+- 작으면 처음부터 찾고, 크면 뒤에서부터 찾음
+- [절반보다 작으면] count는 0에서 점점 올라가고, current는 head에서 시작해서 next로 점점 넘어감.
+- [절반보다 크면] count는 length - 1에서 시작해서 점점 감소하고, current는 tail에서 시작해서 prev로 넘어옴.
+- count와 current는 각 상황에 따라 초기 설정해두고 while 반복문 돌려서(count랑 index랑 같지 않을 경우) current랑 count 조정
 
 <br/>
 <br/>
 
 # 🐣  이중 연결 리스트 : set <span id="7">
-##  소개
-
-<br/>
-
-### 어떻게?
+##  소개 및 의사코드
+- get을 호출하여 바꿔주면 됨
+- 인수로 index랑 바꿀 val 받음
+- get이 null 출력한 것 아닌이상 val 교체하고 true를 반환
 
 
 <br/>
 
 ##  해결법
+```
+class Node{
+    constructor(val){
+        this.val = val;
+        this.next = null;
+        this.prev = null;
+    }
+}
 
-<br/>
 
+class DoublyLinkedList {
+    constructor(){
+        this.head = null;
+        this.tail = null;
+        this.length = 0;
+    }
+
+// (생략 push, pop, shift, unshift, get)
+
+    set(index, val){
+        var foundNode = this.get(index);
+        if(foundNode != null){
+            foundNode.val = val;
+            return true;
+        }
+        return false;
+    }
+}
+
+var list = new DoublyLinkedList()
+list.push("Harry")
+list.push("Ron")
+list.push("Hermione")
+
+```
+
+- index, val 을 인자로 받음 (index와 교체할 값)
+- foundNode를 통해 get(index) 호출하여 해당 노드 객체 구하고
+- foundNode가 null이 아니고 해당 index의 node를 반환했으면
+- 그 노드에 인자로 받은 val로 교체를 하고
+- return 값으로 true 반환. 그렇지 않을 경우 false 출력
 
 <br/>
 <br/>
 
 # 🐣  이중 연결 리스트 : insert <span id="8">
-##  소개
+##  소개 및 의사코드
+- 연결을 많이 해줘야함
+- get을 통해 요소 순회하는데 받은 index의 -1값으로 순회(그래야 3번 index 대신에 새로운 값 3번 index에 들어가고, 기존 3번 index는 뒤로 밀리기 때문)
+- index-1값 찾아서 newNode의 prev로 연결해주고, next에는 기존 3번 index를 넣어줌
+- 기존 index-1에는 next로 newNode 연결해주고, 기존 index에는 prev로 newNode를 연결해줌
 
-<br/>
-
-### 어떻게?
 <br/>
 
 ##  해결법
+```
+class Node{
+    constructor(val){
+        this.val = val;
+        this.next = null;
+        this.prev = null;
+    }
+}
+
+
+class DoublyLinkedList {
+    constructor(){
+        this.head = null;
+        this.tail = null;
+        this.length = 0;
+    }
+// (생략 push, pop, shift, unshift, get, set)
+    insert(index, val){
+        if(index < 0 || index > this.length) return false;
+        if(index === 0) return !!this.unshift(val);
+        if(index === this.length) return !!this.push(val);
+
+        var newNode = new Node(val);
+        var beforeNode = this.get(index-1);
+        var afterNode = beforeNode.next;
+        
+        beforeNode.next = newNode, newNode.prev = beforeNode;
+        newNode.next = afterNode, afterNode.prev = newNode;
+        this.length++;
+        return true;
+    }
+}
+
+var list = new DoublyLinkedList()
+list.push("Harry")
+list.push("Ron")
+list.push("Hermione")
+
+```
+
+- index랑 삽입할 val을 인자로 받음
+- index가 음수이거나 length보다 클 경우 false 반환(insert하는 거기 때문에 같아도 상관없음)
+- index 0이면 !!unshift 반환(!! 붙이는 이유는 boolean 값으로 출력하기 위해서임)
+- index length랑 같으면 !!push 반환
+- 일단 newNode를 생성하고
+- beforeNode에 기존의 prev를 넣어줌(index-1)
+- afterNode에 기존의 ndoe를 넣어줌(beforeNode.next)
+- 그리고 이제 연결을 교체교체~
+- beforeNode.next 그리고 afterNode.prev는 newNode로
+- newNode.prev는 beforeNode로, newNode.next는 afterNode로!
+- 그리고 length ++ 해주고 true 반환!
 
 <br/>
 <br/>
 
 # 🐣  이중 연결 리스트 : remove <span id="9">
-##  소개
-
-<br/>
-
-### 어떻게?
+##  소개 및 의사코드
+- 제거할 index get한 다음에 
+- 앞뒤 연결 null 해주고 
+- 기존의 앞뒤 노드들을 서로 연결해줌
 
 <br/>
 
 ##  해결법
+```
+class Node {
+  constructor(val) {
+    this.val = val;
+    this.next = null;
+    this.prev = null;
+  }
+}
+
+
+class DoublyLinkedList {
+  constructor() {
+    this.head = null;
+    this.tail = null;
+    this.length = 0;
+  }
+//(생략 push, pop, shift, unshift, get, set, insert)
+  remove(index) {
+    if (index < 0 || index >= this.length) return undefined;
+    if (index === 0) return this.shift();
+    if (index === this.length - 1) return this.pop();
+    
+    var removedNode = this.get(index);
+    var beforeNode = removedNode.prev;
+    var afterNode = removedNode.next;
+    
+    beforeNode.next = afterNode;
+    afterNode.prev = beforeNode;
+
+    // removedNode.prev.next = removedNode.next;
+    // removedNode.next.prev = removedNode.prev;
+
+    removedNode.next = null;
+    removedNode.prev = null;
+
+    this.length--;
+    return removedNode;
+  }
+}
+
+var list = new DoublyLinkedList()
+list.push("Harry")
+list.push("Ron")
+list.push("Hermione")
+
+```
+
+- index를 인자로 받고
+- index가 음수이거나 length보다 크거나 같을 때 undefined(길이가 10이면 index는 9까지만 있기때문)
+- index 0 이면 shift 반환
+- index length - 1 이면 pop 반환
+- 우선 removedNode를 get(index)를 통해 해당 노드 구하고
+- beforeNode에는 삭제할 기존의 노드의 이전꺼를
+- afterNode에는 삭제할 기존의 노드의 다음꺼를 넣음
+- 그리고 연결을 해주는데
+- beforeNode.next에는 afterNode를
+- afterNode.prev에는 beforeNode를 연결해줌
+- 그리고 삭제할 기존의 노드의 next와 prev는 모두 null처리
+- lenght는 -- 해주고, removedNode를 반환해줌 
 
 <br/>
 <br/>
 
 # 🐣  이중 연결 리스트 vs 단일 연결 리스트 <span id="10">
+## 이중 연결 리스트 Big O
+- Insertion : O(1)
+- Removal : O(1)
+- Searching : O(n)
+- Access : O(n)
+- Technically searching is : O(n/2) 이지만 결국 O(n)
+
+## Array vs 단일 연결 리스트 vs 이중 연결 리스트
+### Array
+- 접근 : O(1)
+- 검색 : O(n)
+- 삽입 : O(n) - 재배치
+- 제거 : O(n) - 재배치
+
+<br/>
+
+### 단일 연결 리스트
+- 접근 : O(n)
+- 검색 : O(n)
+- 삽입 : O(1) : 헤드에 삽입하거나 노드를 참조하여 삽입하는 경우
+- 제거 : O(1) or O(n) : 헤드를 제거하거나 노드의 이전 노드를 참조하는 경우, O(n)O(n)O(n)(검색하는 경우) 노드의 경우
+
+<br/>
+
+### 이중 연결 리스트
+- 접근 : O(n)
+- 검색 : O(n)
+- 삽입 : O(1)
+- 제거 : O(1)
+
+<br/>
+
+### 단일 연결 리스트와 이중 연결 리스트의 차이
+#### 메모리 사용량
+
+이중 연결 리스트에는 각 노드에 이전 노드에 대한 추가 포인터가 포함되어 있으므로 더 많은 메모리가 필요
+
+#### 운영 효율성
+- 삽입/삭제: 이중 연결 리스트는 삽입하거나 삭제할 노드에 대한 참조가 있는 경우 포인터를 업데이트하기 위해 목록을 탐색할 필요가 없기 때문에 삽입 및 삭제를 보다 효율적으로 수행 가능.
+- 순회: 이중 연결 리스트는 양방향 순회(앞으로 및 뒤로)를 허용하는 반면, 단일 연결 리스트는 단방향 순회(앞으로)만 허용
+
+#### 구현의 복잡성
+이중 연결 리스트는 추가 포인터와 삽입 및 삭제 중에 '다음' 및 '이전' 포인터를 모두 업데이트해야 하기 때문에 구현 및 관리가 더 복잡함.
