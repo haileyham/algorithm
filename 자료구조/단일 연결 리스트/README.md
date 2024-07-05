@@ -549,34 +549,239 @@ class Node{
 
 # 🐣  단일 연결 리스트 : insert <span id="8">
 ##  소개
+-  "insert( )" 메소드는 두 개의 인자를 받아 들였던 "set( )"과 같이 인덱스 및 값은 받아들임
+- 하지만 이미 존재하는 노드를 업데이트하는 대신 "insert( )"는 주어진 노드를 그곳이 어디던 주어진 위치에 새롭게 삽입한다는 차이점 있음
+- 예를 들어 [22,2,77,6,43,76,89]에서 번호 "17"을 "2" 위치에, "0", "1", "2" 삽입하라고 하면, 새로운 노드 "17"을 삽입한 후 이 노드와 연결하고 다시 "77"과 연결하게 됨(17을 인덱스 2에 두고 싶기 때문에 기존 77 자리에 17이 들어가고 77은 17 다음으로 연결, 2 다음에는 17이 오도록)
+- 인덱스 2를 지정할 경우, 인덱스 1 위치에 있는 노드를 찾아 새로운 노드에 연결(17을 연결)
+
+<br/>
+
+### 어떻게?
+- function 정의 후에 index와 value 두 개 인자 받음
+- 범위 벗어날 경우 insert 불가하기 때문에
+- index 0보다 작거나 리스트의 lenght보다 클 경우(크거나 같을 경우가 아닌 클경우임. get에서는 lenght보다 크거나 같을 경우였음) false 반환
+- 인덱스가 길이와 같을 경우는 리스트의 맨 마지막에 삽입하면 되기 때문이며, 이 경우 이미 정의되어 있는 "push( )" 메소드를 호출할 수 있음(즉, 리스트의 맨 마지막에 삽입하기를 원할 경우 다시 작성할 필요 없이 "push( )"를 활용)
+- 마찬가지로 리스트의 맨 앞에 새로운 노드를 삽입하기를 원한다면 "unshift( )" 메소드를 활용
+- [예시]
+- 먼저 새 노드를 생성
+- 인덱스 "3"을 예를 들면, 처음해야 할 일은 "2" 위치에 있는 노드를 찾는 것이고, 이를 위해서 이미 "get( )" 메소드가 정의되어 있기 때문에 그냥 호출하면 됨. 대신 "index - 1"으로 호출해야 함(인덱스 위치에 있는 노드가 아니라 인덱스보다 하나 전에 위치한 노드를 찾는 것)
+- 따라서 노드 "17"을 인덱스 "2" 위치 에 삽입하기를 원할 경우 "get(1)"을 호출
+- 이제 새롭게 노드를 삽입하려는 위치 바로 전 노드가 어떤 것인지 알기 때문에, 이전 노드의 "next"가 새롭게 생성된 후 삽입되는 노드를 가리키도록 설정
+- "get( )" 메소드를 이용해 삽입하려는 위치 이전 노드를 찾고 이것을 새 노드에 연결. 그리고는 새 노드를 이전의 "next" 노드로 연결
+- 굳이 어떤 것을 먼저 연결해야 한다는 순서는 없지만, 잠시 동안 연결점을 저장해 두는 임시 변수를 사용해야 함
+- 이제 마지막으로 해야 할 것은 지금 막 노드를 하나 삽입했기 때문에 길이를 "1"만큼 증가시키는 것과 "true"을 반환하는 것
 
 <br/>
 
 ##  해결법
+```
+class Node{
+    constructor(val){
+        this.val = val;
+        this.next = null;
+    }
+}
+
+class SinglyLinkedList{
+    constructor(){
+        this.head = null;
+        this.tail = null;
+        this.length = 0;
+    }
+
+   // (생략 push, pop, shift, unshift, get, set)
+
+    insert(index, val){
+        if(index < 0 || index > this.length) return false;
+        if(index === this.length) return !!this.push(val);
+        if(index === 0) return !!this.unshift(val);
+        
+        var newNode = new Node(val);
+        var prev = this.get(index - 1);
+        var temp = prev.next;
+        prev.next = newNode;
+        newNode.next = temp;
+        this.length++;
+        return true;
+    }
+}
+
+var list = new SinglyLinkedList()
+
+list.push(100)
+list.push(201)
+list.push(250)
+list.push(350)
+```
+
+- 우선 index 보다 작거나, lenght보다 큰 것은 false 반환
+- index가 length와 같을 경우 해당 val 은 push
+- index가 0일 경우 해당 val은 unshift
+- !!을 붙이는 이유는 전체 boolean으로 반환하기 위해서 통일감(그냥 return this.push(val) 할 경우 전체 객체 반환하기 때문)
+- newNode 새로 노드 작성
+- prev를 만들어서 get을 통해 index-1 노드 객체 담음
+- temp 에다가 prev.next 
+- 기존에 [1,2,3,4]에서 index 2 (=3번째 즉 3)에다가 insert 할 경우 prev는 2이고, temp는 3임
+- 그리고서 prev.next에 새로 만든 newNode 연결
+- newNode.next에는 기존의 index 2에 위치했던 것을 담은 temp 연결
+- length ++ 해주고 true 반환
 
 <br/>
 <br/>
 
 # 🐣  단일 연결 리스트 : remove <span id="9">
 ##  소개
+- "remove( )"는 인덱스를 인자로 받아서 해당 인덱스에 있는 노드를 제거하고 주위에 있는 것들을 연결
+
+<br/>
+
+### 어떻게?
+- index를 인자로 받고
+- index 값이 0보다 작거나 length보다 길 경우 undefined 혹은 null 반환
+- 만약 index가 length-1과 같을 경우 마지막 노드를 제거하면 되기 때문에 pop(); (참고로 5개 리스트 존재할 경우 index는 4까지만 존재하기 때문에 length-1인 것으로 마지막 요소를 가리킴)
+- 또 반대로 index가 0일 경우에는 shift() 사용하면 됨
+- 위의 가정이 아닌 경우 get() 사용하여 .next는 이전 노드의 next로 연결해줌
+- 마지막으로 lenght -- 해주고, 제거된 노드 반환
 
 <br/>
 
 ##  해결법
+```
+class Node{
+    constructor(val){
+        this.val = val;
+        this.next = null;
+    }
+}
 
+class SinglyLinkedList{
+    constructor(){
+        this.head = null;
+        this.tail = null;
+        this.length = 0;
+    }
+
+   // (생략 push, pop, shift, unshift, get, set, insert)
+   
+    remove(index){
+        if(index < 0 || index >= this.length) return undefined;
+        if(index === 0) return this.shift();
+        if(index === this.length - 1) return this.pop();
+        var previousNode = this.get(index - 1);
+        var removed = previousNode.next;
+        previousNode.next = removed.next;
+        this.length--;
+        return removed;
+    }
+}
+
+var list = new SinglyLinkedList()
+
+list.push(100)
+list.push(201)
+list.push(250)
+list.push(350)
+```
+
+- index 0보다 작거나 lenght보다 길거나 같으면 undefined 반환
+- index 0 이면 shift, length - 1과 같으면 pop 반환
+- previousNode에는 get 이용해서 index - 1 노드 가져오고
+- removed에는 제거할 previousNode.next를 담음 (즉 해당 index)
+- 그리고 previousNode.next에는 removed.next를 담아줌(즉 제거하는 index의 다음꺼를 previous 다음껄로 연결)
+- length -- 해주고 removed 반환해줌
 
 <br/>
 <br/>
 
 # 🐣  단일 연결 리스트 : reverse <span id="10">
 ##  소개
+- 주어진 연결 리스트의 노드 순서가 역으로 연결되도록 해야함
+- 리스트를 따라가면서 순서를 계속 역으로 바꿔 나가야 함
+
+<br/>
+
+### 어떻게?
+- 인자를 받지 않고 리스트 순 역으로 작성해보쟝
+- head와 tail을 서로 교환하고 next, prev,node라는 변수 생성
+- node를 현재 head 값으로 초기화
+- node의 .next를 .next.next 계속해서 설정하는 작업 
+- reverse() 메소드 구현할때 print() 메소드 통해서 reverse( ) 메소드가 제대로 동작하는지 확인하는 것을 조금 더 쉽게.
 
 <br/>
 
 ##  해결법
+```
+class Node{
+    constructor(val){
+        this.val = val;
+        this.next = null;
+    }
+}
+
+class SinglyLinkedList{
+    constructor(){
+        this.head = null;
+        this.tail = null;
+        this.length = 0;
+    }
+
+   // (생략 push, pop, shift, unshift, get, set, insert, remove)
+   
+    reverse(){
+      var node = this.head;
+      this.head = this.tail;
+      this.tail = node;
+      var next;
+      var prev = null;
+      for(var i = 0; i < this.length; i++){
+        next = node.next;
+        node.next = prev;
+        prev = node;
+        node = next;
+      }
+      return this;
+    }
+
+    print(){
+    var arr = [];
+    var current = this.head
+    while(current){
+        arr.push(current.val)
+        current = current.next
+      }
+        console.log(arr);
+    }
+}
+
+ar list = new SinglyLinkedList()
+
+list.push(100)
+list.push(201)
+list.push(250)
+list.push(350)
+list.push(999)
+```
+
+- print는 reverse가 잘 동작하는지 확인용
+- reverse에서 node에 head를 넣고
+- head에는 tail을 넣고, tail에는 node 넣어줌
+- 즉 node가 head이고 tail이 node이자 head
+- next 변수 선언하고, prev에는 null 값 할당(null값인 이유는 node tail의 next에는 null값이기 때문에)
+- 반복문 for을 이용하여 돌리고
+- next에는 node.next를
+- node.next에는 prev를
+- prev에는 node를
+- node에는 next를 넣어줌
+- 마지막으로 this 반환(instance 리스트 객체 반환)
 
 
 <br/>
 <br/>
 
 # 🐣  단일 연결 리스트 : 빅오 표기법 <span id="11">
+- insertion : O(1)
+- removal : O(1) or O(n)
+- searching : O(n)
+- access : O(n)
+- removal의 경우 앞에서 삭제하면 간단하지만 끝의 경우 pop하면서 삭제한 이전의 것을 알기위해 훑어가야 하기 때문
+- 스택, 큐 등에서 단방향 연결 리스트 개념 필요
