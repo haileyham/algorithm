@@ -205,8 +205,133 @@ tree.insert(7)
 <br/>
 
 # 🐣 이진 검색 트리 : find  <span id="6">
+## 설명
+- 이진 트리를 가지고 해당 값이 트리에 있는지를 탐색
+- 예를들어 50이 트리에 있는지나 100이 트리에 있는지 등을 확인
+- insert와 비슷하게 가능
+
+<br/>
+
+## 코드로 구현해보기 find
+- BST_Find.js
+```
+class Node {
+    constructor(value){
+        this.value = value;
+        this.left = null;
+        this.right = null;
+    }
+}
+
+class BinarySearchTree {
+    constructor(){
+        this.root = null;
+    }
+    insert(value){
+        var newNode = new Node(value);
+        if(this.root === null){
+            this.root = newNode;
+            return this;
+        }
+        var current = this.root;
+        while(true){
+            if(value === current.value) return undefined;
+            if(value < current.value){
+                if(current.left === null){
+                    current.left = newNode;
+                    return this;
+                }
+                current = current.left;
+            } else {
+                if(current.right === null){
+                    current.right = newNode;
+                    return this;
+                } 
+                current = current.right;
+            }
+        }
+    }
+    find(value){
+        if(this.root === null) return false;
+        var current = this.root,
+            found = false;
+        while(current && !found){
+            if(value < current.value){
+                current = current.left;
+            } else if(value > current.value){
+                current = current.right;
+            } else {
+                found = true;
+            }
+        }
+        if(!found) return undefined;
+        return current;
+    }
+    contains(value){
+        if(this.root === null) return false;
+        var current = this.root,
+            found = false;
+        while(current && !found){
+            if(value < current.value){
+                current = current.left;
+            } else if(value > current.value){
+                current = current.right;
+            } else {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
+
+//      10
+//   5     13
+// 2  7  11  16
+
+var tree = new BinarySearchTree();
+tree.insert(10)
+tree.insert(5)
+tree.insert(13)
+tree.insert(11)
+tree.insert(2)
+tree.insert(16)
+tree.insert(7)
+```
+
+- [값, 노드를 출력하는 find]
+- find 인자로 value 받음. 찾을 값
+- root가 null 값이면 false 출력
+- current에는 root 값 넣고, found에는 false를 넣음
+- while 반복문 조건은 current && !found 즉, current가 존재하고 found가 false 일 때 
+- value가 current.value 보다 작으면 current에는 current.left 값을 부여하고, 반대에는 righr값 부여
+- 만약 둘다 아니라면(value랑 current.value랑 동일) found는 true 처리
+- 그리고 !found 즉 false 일 때 undefined 반환하도록 설정하고
+- return 값은 current로
+- return 값 undefined 혹은 해당 node 의 value
+
+<br/>
+
+- [참과 거짓을 출력하는 contains]
+- 위와 동일하지만 true, false를 출력함
 
 <br/>
 <br/>
 
 # 🐣 이진 검색 트리 : Big O  <span id="7">
+
+- Insertion : O(log n)
+- Searching : O(log n)
+
+<br/>
+
+## 설명
+
+- 밑이 2인 로그인데, 생략
+- (Big O 비교위한 사진 참고)
+- 아래 트리에서는 위에 비해서 노드의 숫자가 두 배로 늘기는 했지만 한 번만 더 하면 됨
+- 즉 트리가 두 배가 되어서 노드의 개수가 두 배가 될 때 단계의 수는 하나가 늘어남
+- Big O 그래프를 살펴봤으 때 log n보다 좋은 것은 O(1) 상수 값 밖에는 없음
+- log n인 것이 장점이 되는 것임
+- 근데 예외의 경우로 안 좋은 경우, 트리가 한쪽으로 길게 늘어지는 상황은 연결 리스트랑 비슷해 보일 수 있고, 삽입이나 탐색을 할 때 취해야 하는 단계의 숫자도 노드의 숫자 증가에 따라서 커지면서 완전히 한 쪽으로 쏠린 트리에 대해서는 빅오(n)의 값을 가짐
+- 이럴 땐 다른 루트를 선택해서 이진 탐색 트리를 다시 작성하는 것이 나음
