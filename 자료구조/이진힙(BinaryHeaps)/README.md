@@ -357,11 +357,209 @@ heap.insert(55);
 <br/>
 
 # 🐣 우선 순위 큐(Queue)  <span id="5">
-- Priority_Queue.js
 ## ▷ 우선 순위 큐(Queue)
+[우선 순위 큐?]
+- 우선순위 큐는 각 요소가 그에 해당하는 우선순위를 가지는 데이터 구조
+- 더 높은 우선순위를 가진 요소가 더 낮은 우선순위를 가진 요소보다 먼저 처리
+- 데이터 모음이 있는데 각 노드, 또는 요소가 각각에 대한 우선순위 값을 가지고 있는 것
+- 리스트, 또는 구조, 즉 우리가 데이터를 저장한 곳에서 한 번에 하나씩 요소를 가지고 옴
+- 한 번에 하나씩 처리를 한 다음에 그 다음 것을 처리하게 되는데, 꼭 병원에 있는 응급실 같이 어느정도 우선순위가 부여됨
+- 서로 다른 우선순위를 가지는 데이터나 정보를 관리할 필요가 있거나 무언가를 입력하는데 입력하는 것이 순서에 맞추어 데이터를 입력하지 않을 경우 사용
+
+[우선 순위 큐 예시 및 추가설명]
+- 예를 들어서 총을 맞은 사람이 오면, 그 앞에 100명이 기다리고 있더라도 모두가 감기 환자일 경우 총을 맞은 사람이 가장 먼저 진료
+- 우선순위를 먼저, 힙을 사용하는 우선순위 큐 실행방식
+- 가장 위에 위치한 요소인 최대값이나 최소값을 파악해서
+- 무언가 추가: 자리 바뀔 가능성
+- 무언가 제거 : 꼭대기에서 제거
+- 힙은 좋은 성능을 가짐. 삽입과 제거 모두 log n의 시간 복잡도
+
+<br/>
+
+### 어떻게?
+- 이전에 최대 이진 힙을 했었기 때문에 최소 이진 힙을 이용하여 병원 혹은 유닉스의 나이스 값이 작동하는 방식대로 낮은 값이 먼저 나오도록 설정
+- 우선순위 1이 가장 높은 것이고, 2,3 순으로 낮은 우선 순위 의미
+- class 두 개(PriorityQueue, Node)
+- 각 인스턴스화 하면 됨. 
+- insert와 extractMax 대신에 enqueue와 dequeue 사용
+
+
 ## ▷ 우선 순위 큐(Queue) 솔루션
+- Priority_Queue.js
+
+```
+class PriorityQueue {
+  constructor() {
+    this.values = [];
+  }
+  enqueue(val, priority) {
+    let newNode = new Node(val, priority);
+    this.values.push(newNode);
+    this.bubbleUp();
+  }
+  bubbleUp() {
+    let idx = this.values.length - 1;
+    const element = this.values[idx];
+    while (idx > 0) {
+      let parentIdx = Math.floor((idx - 1) / 2);
+      let parent = this.values[parentIdx];
+      if (element.priority >= parent.priority) break;
+      this.values[parentIdx] = element;
+      this.values[idx] = parent;
+      idx = parentIdx;
+    }
+  }
+  dequeue() {
+    const min = this.values[0];
+    const end = this.values.pop();
+    if (this.values.length > 0) {
+      this.values[0] = end;
+      this.sinkDown();
+    }
+    return min;
+  }
+  sinkDown() {
+    let idx = 0;
+    const length = this.values.length;
+    const element = this.values[0];
+    while (true) {
+      let leftChildIdx = 2 * idx + 1;
+      let rightChildIdx = 2 * idx + 2;
+      let leftChild, rightChild;
+      let swap = null;
+
+      if (leftChildIdx < length) {
+        leftChild = this.values[leftChildIdx];
+        if (leftChild.priority < element.priority) {
+          swap = leftChildIdx;
+        }
+      }
+      if (rightChildIdx < length) {
+        rightChild = this.values[rightChildIdx];
+        if (
+          (swap === null && rightChild.priority < element.priority) ||
+          (swap !== null && rightChild.priority < leftChild.priority)
+        ) {
+          swap = rightChildIdx;
+        }
+      }
+      if (swap === null) break;
+      this.values[idx] = this.values[swap];
+      this.values[swap] = element;
+      idx = swap;
+    }
+  }
+}
+
+class Node {
+  constructor(val, priority) {
+    this.val = val;
+    this.priority = priority;
+  }
+}
+
+let ER = new PriorityQueue();
+ER.enqueue("common cold", 5)
+ER.enqueue("gunshot wound", 1)
+ER.enqueue("high fever", 4)
+ER.enqueue("broken arm", 2)
+ER.enqueue("glass in foot", 3)
+```
+
+- class 두 개(PriorityQueue, Node)
+
+[class:Node]
+- constructor에서는 val과 priority를 인자로 받음
+- val과 priority를 요소로 둠 (= value 값과 우선순위)
+
+[class:PriorityQueue]
+- 우선 PriorityQueue 살펴보면, constructor에는 value 빈 배열 값
+
+[enqueue]
+- enqueue에서는 val과 priority 인자로 받음(즉 value 값이랑 우선순위를 받음)
+- new Node를 이용해서 생성하고 val,priority 인수로
+- values에 newNode push
+- bubbleUp 실행
+
+[bubbleUp]
+- 계속해서 올리는 것(여기서는 숫자값이 낮을 수록 위에 위치)
+- idx에 value 마지막꺼 index 넣기
+- element에는 해당 값 넣기(values[idx])
+- while 반복문 idx > 0
+- 부모 인덱스 찾아서 parentIdx에 넣고 : (n-1)/2 하고 내림
+- 부모 값 parent에 넣음
+- if 조건문 element(=위에선 마지막값)의 우선순위와 부모의 우선순위 값 비교해서 element가 더 높거나 같으면 반복문 중단 (= 숫자 낮을수록 우선순위 ↑ / 숫자 높을 수록 우선순위 ↓ / 즉, element의 숫자 높으면 즉 우선순위 낮으면 스탑)
+- 부모 index 값에 element 넣고
+- values 마지막 값 담고 있던 것에 부모값 넣고
+- idx에는 부모 idx 넣기
+- break 까지 계속해서 반복
+
+[dequeue]
+- values 첫번째 값을 min에 넣고
+- values 마지막 값을 pop 하고 end에 넣음
+- 조건문 values.length > 0 일 때
+- values[0]에 마지막 값인 end 넣고
+- sinkDown 실행
+- min 첫값 반환
+
+[sinkDown]
+- 맞는 자리 찾도록 내려보냄
+- idx에 0 값
+- length에 values 배열 길이
+- element에 values[0] 첫번째 값
+- while(true) 반복
+- 왼쪽 자식 노드 index를 leftChildIdx에 (2n+1)
+- 오른쪽 자식 노드 index를 rightChildIdx에 (2n+2)
+- leftChild, rightChild 선언 / swap에는 null 값
+
+(if 조건문 왼쪽 자식 노드)
+- if 조건문 length보다 왼쪽자식노드index 작을경우 실행
+- leftChild에 왼쪽노드값 넣기 (values[leftChildIdx])
+- if 조건문 왼쪽자식노드값 우선순위가 element(=values첫번째값) 보다 작을 경우
+- swap 에 왼쪽자식노드 index 넣음
+
+(if 조건문 오른쪽 자식 노드)
+- if 조건문 오른쪽 자식 노드 index가 length보다 작을 경우 실행
+- rightChild에 오른쪽 노드 값 넣기
+- if 조건문 실행. 
+- swap이 null 값이고 오른쪽 노드 우선순위가 element 우선순위보다 작을 경우
+- 혹은 swap이 null값이 아니고(swap에 값 있음=왼쪽노드index), 오른쪽 노드 우선순위가 왼쪽 노드 우선순위보다 작을때
+- swap에 오른쪽 자식 노드 index 넣음
+
+(if 조건문 break)
+- swap이 null 값이면 break 반복문 중단
+
+- values(idx)에 values[swap] 넣어주고 (=index 0에 swap index의 값을 넣어줌)
+- values[swap]에 element 넣어주고 (= swap index에 element 넣어줌. 즉 루트값빼기 직전의 배열 마지막값이 index 0으로 갔기 때문에 해당 값이 element임 / 위에서 조건문(왼,오 노드 비교)에 해당하는 값이 swap에 들어갔고 해당 자리에 element 넣음)
+- idx = swap 넣어줘서 변경 (=idx 기존에 0이었는데, swap으로 변경해주면서 계속해서 위치 변경 위한 준비)
 
 <br/>
 <br/>
 
 # 🐣 이진 힙의 빅오 : Big O  <span id="6">
+(Big O 이미지)
+- Insertion : O(log N)
+- Removal : O(log N)
+- Search : O(N)
+
+(Big O 그래프)
+- o(log n)의 경우 매우 빠른 편
+- log n 이라하지만 사실 log2 n
+
+## 왜 log n ?
+(200 이미지)
+- 어떤 이진 트리 구조에서든지 한 칸을 내려갈 때마다 2배의 노드가 더 생김
+- 힙에 있는 레벨 하나당 한 번의 비교 [1]
+- 가장 먼저 첫 번째 부모인 9와 비교 (모든 것 왼쪽에 먼저 삽입 필요)
+- 200은 9요소의 자식 됨
+- 이제 비교 시작
+- 부모와 비교 [2] 9의 부모인 17과 비교
+- [3] 17의 부모인 19와 비교
+- [4] 19의 부모인 100과 비교
+- 각 층마다 비교하여 네 번의 비교를 함
+
+## 왜 n ? 
+- 형제 노드 사이에 주어진 순서가 없음
+- 결정을 내릴 수가 없음. 어딘가에 있겠지란 접근은 가능하지만 정확하지는 않음
+- 실제로는 확인을 해보면 탐색에 대한 빅오값은 빅오(n/2)
+- 단순화 시켜서 빅오 n 으로 표기 (나누기 2, 곱하기 100 등은 단순화 시킴)
